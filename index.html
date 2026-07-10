@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ภาพรวม — แบบแท็บ 3 หัวข้อ</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root {
+  --brown-dark: #2C1A0E;
+  --brown-main: #6B3F1E;
+  --brown-mid:  #8B5728;
+  --amber:      #C47D2E;
+  --amber-light:#E8A84A;
+  --cream:      #F6F0E4;
+  --cream-deep: #EDE3CF;
+  --line:       #D4C4A0;
+  --text:       #1E130A;
+  --text-soft:  #6B5438;
+  --white:      #FFFDF8;
+  --teal:       #2F5D55;
+  --rust:       #9C3A28;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Sarabun', sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.6;
+  padding: 40px 20px 80px;
+}
+.page-wrap { max-width: 680px; margin: 0 auto; }
+
+.section-label { font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--amber); margin-bottom:4px; }
+.section-title { font-size:18px; font-weight:700; color:var(--brown-dark); }
+.head-row { display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+.head-updated { font-size:10.5px; color:var(--text-soft); font-family:'IBM Plex Mono',monospace; }
+
+/* ===== dashboard card ===== */
+.dash-shell {
+  background:#fff; border:1.5px solid var(--line); border-radius:14px;
+  box-shadow:0 2px 10px rgba(44,26,14,.07); overflow:hidden;
+}
+.dash-tabs { display:flex; background:var(--cream-deep); border-bottom:1.5px solid var(--line); }
+.dash-tab {
+  flex:1; padding:12px 6px; text-align:center; font-size:12.5px; font-weight:600;
+  color:var(--text-soft); cursor:pointer; border-bottom:2.5px solid transparent;
+  transition:.15s; user-select:none; display:flex; flex-direction:column; align-items:center; gap:2px;
+}
+.dash-tab .tab-sub { font-size:9.5px; font-weight:400; color:var(--text-soft); opacity:.8; }
+.dash-tab:hover { color:var(--brown-dark); }
+.dash-tab.active { color:var(--tab-accent,var(--amber)); background:color-mix(in srgb, var(--tab-accent,var(--amber)) 14%, #fff); border-bottom-color:var(--tab-accent,var(--amber)); }
+.dash-tab.active .tab-sub { color:var(--tab-accent,var(--amber)); opacity:.85; }
+.dash-body { padding:18px 20px 16px; }
+.dash-panel { display:none; }
+.dash-panel.active { display:block; animation:fadein .25s ease; }
+@keyframes fadein { from{opacity:0;transform:translateY(3px);} to{opacity:1;transform:translateY(0);} }
+
+.stat-row { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px; }
+.dash-stat {
+  background:var(--cream); border:1.5px solid var(--line); border-radius:10px;
+  padding:13px 8px 11px; text-align:center; position:relative; overflow:hidden;
+}
+.dash-stat::after{ content:''; position:absolute; bottom:0; left:0; right:0; height:3px; background:var(--ds-accent,var(--amber)); }
+.dash-stat .ds-num { font-size:24px; font-weight:700; font-family:'IBM Plex Mono',monospace; color:var(--ds-color,var(--amber)); line-height:1; }
+.dash-stat .ds-label { font-size:10.5px; color:var(--text-soft); margin-top:4px; }
+
+.mini-h { display:flex; align-items:center; gap:7px; font-size:12px; font-weight:600; color:var(--brown-dark); margin-bottom:10px; }
+.mini-h .dot { width:3px; height:13px; border-radius:2px; flex-shrink:0; }
+
+.db-row { display:flex; align-items:center; gap:9px; margin-bottom:8px; }
+.db-row:last-child { margin-bottom:0; }
+.db-type { font-size:11.5px; color:var(--text); text-align:right; width:150px; flex-shrink:0; line-height:1.3; }
+.db-track { flex:1; height:19px; background:var(--cream); border-radius:5px; overflow:hidden; }
+.db-bar { height:100%; border-radius:5px; display:flex; align-items:center; padding:0 8px; transition:width .6s ease; }
+.db-bar span { font-size:10.5px; font-weight:600; color:rgba(255,255,255,.92); white-space:nowrap; }
+.db-count { font-size:11px; color:var(--text-soft); width:36px; text-align:right; flex-shrink:0; }
+
+.col-chart { display:flex; align-items:flex-end; gap:10px; height:74px; margin-bottom:4px; padding:0 2px; }
+.col-item { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; gap:6px; }
+.col-bar-wrap { flex:1; display:flex; align-items:flex-end; width:100%; max-width:46px; }
+.col-bar {
+  width:100%; border-radius:6px 6px 3px 3px; position:relative;
+  display:flex; align-items:flex-start; justify-content:center; padding-top:5px;
+  transition:height .6s cubic-bezier(.4,0,.2,1);
+}
+.col-bar span { font-size:11px; font-weight:700; font-family:'IBM Plex Mono',monospace; color:#fff; }
+.col-label { font-size:9.5px; color:var(--text-soft); text-align:center; line-height:1.3; }
+
+/* ── โดนัทชาร์ต + ไทม์ไลน์ + ป้ายภาค (แบบ A) ── */
+.a-layout { display:flex; gap:20px; flex-wrap:wrap; }
+.a-donut-wrap { display:flex; flex-direction:column; align-items:center; gap:12px; width:150px; flex-shrink:0; }
+.donut {
+  width:118px; height:118px; border-radius:50%;
+  background: conic-gradient(
+    #9C3A28 0deg 154.3deg, #AE4A38 154.3deg 231.4deg, #8B5728 231.4deg 282.9deg,
+    #6B3F1E 282.9deg 321.4deg, #C47D2E 321.4deg 347.1deg, #8F571F 347.1deg 360deg
+  );
+  position:relative; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.donut::after { content:''; position:absolute; width:72px; height:72px; border-radius:50%; background:#fff; box-shadow:inset 0 0 0 1.5px var(--line); }
+.donut-center { position:relative; z-index:2; text-align:center; }
+.donut-center .num { font-family:'IBM Plex Mono',monospace; font-size:19px; font-weight:700; color:var(--brown-dark); line-height:1; }
+.donut-center .lbl { font-size:8.5px; color:var(--text-soft); margin-top:2px; }
+.legend-col { display:flex; flex-direction:column; gap:5px; width:100%; }
+.legend-item { display:flex; align-items:center; gap:6px; font-size:10px; }
+.legend-item .sw { width:7px; height:7px; border-radius:2px; flex-shrink:0; }
+.legend-item .lname { flex:1; color:var(--text); }
+.legend-item .lval { font-family:'IBM Plex Mono',monospace; font-weight:600; color:var(--text-soft); }
+.pill-icon { width:16px; height:16px; flex-shrink:0; color:var(--ds-accent, var(--amber)); }
+
+.a-right { display:flex; flex-direction:column; gap:16px; flex:1; min-width:220px; }
+.tl-wrap { position:relative; padding:4px 6px 0; }
+.tl-line { position:absolute; left:8px; right:8px; top:29px; height:2px; background:var(--line); }
+.tl-track { display:flex; justify-content:space-between; position:relative; }
+.tl-node { display:flex; flex-direction:column; align-items:center; gap:6px; position:relative; z-index:2; }
+.tl-count { font-family:'IBM Plex Mono',monospace; font-weight:700; color:var(--brown-dark); font-size:11.5px; }
+.tl-dot { border-radius:50%; background:var(--amber); border:3px solid #fff; box-shadow:0 0 0 1.5px var(--amber); }
+.tl-year { font-size:9px; color:var(--text-soft); text-align:center; white-space:nowrap; }
+
+.pill-row { display:flex; flex-wrap:wrap; gap:6px; }
+.pill { display:flex; align-items:center; gap:6px; background:var(--cream); border:1.5px solid var(--line); border-radius:18px; padding:4px 10px 4px 5px; font-size:10.5px; }
+.pill .pnum { font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:10px; color:#fff; background:var(--ds-accent,var(--amber)); width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.pill .pname { color:var(--text); }
+.pill.unclear { opacity:.7; border-style:dashed; }
+
+.icard-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+.icard { display:flex; align-items:center; gap:6px; background:var(--cream); border:1.5px solid var(--line); border-radius:8px; padding:5px 7px; cursor:pointer; transition:opacity .2s ease, box-shadow .15s ease; }
+.icard .ic-glyph { width:14px; height:14px; flex-shrink:0; color:var(--ic-accent,var(--amber)); }
+.icard .ic-num { font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:700; color:var(--brown-dark); line-height:1.1; }
+.icard .ic-name { font-size:8.5px; color:var(--text-soft); line-height:1.15; }
+.icard.active { box-shadow:0 0 0 2px var(--ic-accent,var(--amber)); }
+.icard.dim { opacity:.4; }
+.icard.span2 { grid-column:1/3; max-width:calc(50% - 4px); margin:0 auto; }
+
+/* ── โดนัท SVG แบบโต้ตอบได้ (เชื่อมกับป้าย) ── */
+.donut-svg-wrap { position:relative; width:118px; height:118px; flex-shrink:0; }
+.donut-svg { width:100%; height:100%; transform:rotate(-90deg); overflow:visible; }
+.donut-seg { transition:stroke-width .2s ease, opacity .2s ease, filter .2s ease; cursor:pointer; }
+.donut-seg.dim { opacity:.28; }
+.donut-seg.hi { stroke-width:23; filter:drop-shadow(0 0 3px rgba(44,26,14,.35)); }
+.donut-svg-wrap .donut-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:2; pointer-events:none; }
+.pill.linkable { cursor:pointer; transition:transform .15s ease, box-shadow .15s ease, opacity .2s ease; }
+.pill.linkable:hover { transform:translateY(-1px); }
+.pill.linkable.active { box-shadow:0 0 0 2px var(--ds-accent,var(--amber)); }
+.pill.linkable.dim { opacity:.4; }
+.legend-item.linkable { cursor:pointer; padding:3px 4px; border-radius:6px; transition:background .15s ease, opacity .2s ease; }
+.legend-item.linkable:hover { background:var(--cream); }
+.legend-item.linkable.active { background:var(--cream-deep); }
+.legend-item.linkable.dim { opacity:.4; }
+
+.prov-row { margin-top:10px; padding-top:10px; border-top:1px dashed var(--line); }
+.prov-row .pl-label { font-size:10.5px; color:var(--text-soft); margin-bottom:7px; }
+.prov-chips { display:grid; grid-template-columns:repeat(6,1fr); gap:6px; }
+.prov-chip {
+  background:var(--cream); border:1.5px solid var(--line); border-radius:9px;
+  padding:7px 6px 6px; position:relative; overflow:hidden; transition:transform .15s ease, box-shadow .15s ease;
+}
+.prov-chip:hover { transform:translateY(-2px); box-shadow:0 3px 8px rgba(44,26,14,.12); }
+.prov-chip .rank { position:absolute; top:4px; right:6px; font-size:7.5px; font-family:'IBM Plex Mono',monospace; color:var(--text-soft); opacity:.55; }
+.prov-chip .pname { font-size:9px; color:var(--text-soft); line-height:1.25; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.prov-chip .pnum { font-family:'IBM Plex Mono',monospace; font-size:16px; font-weight:700; color:var(--brown-dark); line-height:1; }
+.prov-chip .pbar-track { height:4px; background:var(--line); border-radius:2px; margin-top:6px; overflow:hidden; }
+.prov-chip .pbar-fill { height:100%; border-radius:2px; }
+.prov-chip.muted { opacity:.7; border-style:dashed; }
+.prov-chip.muted .pnum { color:var(--text-soft); }
+@media (max-width:560px) { .prov-chips { grid-template-columns:repeat(3,1fr); } }
+.dash-footnote { font-size:10px; color:var(--text-soft); margin-top:12px; text-align:right; font-family:'IBM Plex Mono',monospace; }
+.cancelled-compact .db-row { margin-bottom:5px; gap:8px; }
+.cancelled-compact .db-type { width:148px; font-size:10.5px; }
+.cancelled-compact .db-track { height:14px; }
+.cancelled-compact .db-bar span { font-size:9.5px; }
+.cancelled-compact .db-count { width:32px; font-size:10.5px; }
+.dash-divider { height:1px; background:var(--cream-deep); margin:14px 0; }
+
+/* ── การ์ดสถานะซากดึกดำบรรพ์ (แบบแถบสัดส่วน + ป้ายชื่อ) ── */
+.fc-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-top:4px; }
+.fc-grid .fc2-card.fc2-wide { grid-column:1 / -1; }
+@media (max-width:520px){ .fc-grid { grid-template-columns:1fr; } .fc-grid .fc2-card.fc2-wide { grid-column:auto; } }
+.fc-grid.fc-grid-row { display:flex; flex-wrap:wrap; gap:10px; }
+.fc-grid.fc-grid-row .fc2-card { flex:1 1 200px; min-width:170px; }
+.fc2-card { background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 1px 4px rgba(44,26,14,.08); border:1px solid var(--line); cursor:pointer; transition:box-shadow .2s ease; }
+.fc2-card.open { box-shadow:0 3px 10px rgba(44,26,14,.14); }
+.fc2-head { padding:8px 14px; font-size:11px; font-weight:600; color:#fff; background:var(--fc-accent,var(--amber)); }
+.fc2-body { padding:11px 14px 12px; }
+.fc2-num { font-family:'IBM Plex Mono',monospace; font-size:22px; font-weight:700; color:var(--fc-accent,var(--amber)); margin-bottom:8px; line-height:1; }
+.fc2-bar { height:9px; border-radius:5px; overflow:hidden; display:flex; margin-bottom:8px; }
+.fc2-legend { display:flex; flex-wrap:wrap; gap:5px 12px; max-height:0; opacity:0; overflow:hidden; transition:max-height .25s ease, opacity .2s ease, margin-top .25s ease; }
+.fc2-card.open .fc2-legend { max-height:120px; opacity:1; margin-top:8px; }
+.fc2-legend-item { display:flex; align-items:center; gap:5px; font-size:10px; color:var(--text-soft); }
+.fc2-legend-item .sw { width:8px; height:8px; border-radius:2px; flex-shrink:0; }
+.fc2-legend-item .lval { font-family:'IBM Plex Mono',monospace; font-weight:700; color:var(--text); }
+
+/* ── แถวไอคอนพร้อมตัวเลข (ใช้แทนการ์ดสำหรับ "แหล่งที่พบได้ทั่วไป") ── */
+.iconrow-wrap { display:flex; flex-direction:column; gap:8px; }
+.iconrow-total { display:flex; align-items:baseline; gap:8px; margin-bottom:2px; }
+.iconrow-total .n { font-family:'IBM Plex Mono',monospace; font-size:22px; font-weight:700; color:#CC7A5C; }
+.iconrow-total .t { font-size:12.5px; font-weight:600; color:var(--brown-dark); }
+.icons { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
+.icon-cell { background:#fff; border:1.5px solid var(--line); border-radius:10px; padding:10px 6px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:5px; }
+.icon-cell .n { font-family:'IBM Plex Mono',monospace; font-size:14px; font-weight:700; color:var(--brown-dark); }
+.icon-cell .lbl { font-size:8.5px; color:var(--text-soft); line-height:1.25; }
+@media (max-width:420px){ .icons { grid-template-columns:repeat(3,1fr); } }
+
+/* ── วงแหวนความคืบหน้าต่อประเภท (ใช้แทนแท่ง+legend ใน fc2-card) ── */
+.rdc-num { font-family:'IBM Plex Mono',monospace; font-size:20px; font-weight:700; color:var(--fc-accent,var(--amber)); margin-bottom:11px; line-height:1; }
+.rdc-rings { display:flex; flex-wrap:wrap; gap:10px; }
+.rdc-ring-cell { display:flex; flex-direction:column; align-items:center; gap:5px; width:56px; }
+.rdc-ring { width:50px; height:50px; border-radius:50%; position:relative; flex-shrink:0; }
+.rdc-ring::after { content:''; position:absolute; inset:7px; border-radius:50%; background:#fff; }
+.rdc-ring-num { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-size:9.5px; font-weight:700; color:var(--brown-dark); z-index:2; }
+.rdc-ring-lbl { font-size:7.5px; color:var(--text-soft); text-align:center; line-height:1.2; }
+
+/* ── ทำให้รายละเอียด (วงแหวน) ของการ์ด ม.14 กาง/พับได้ ซ่อนไว้จนกว่าจะกด ── */
+.fc2-card.fc2-collapsible .rdc-rings { max-height:0; opacity:0; overflow:hidden; margin-top:0; transition:max-height .25s ease, opacity .2s ease, margin-top .25s ease; }
+.fc2-card.fc2-collapsible.open .rdc-rings { max-height:200px; opacity:1; margin-top:2px; }
+.fc2-card.fc2-collapsible .rdc-hint { font-size:9.5px; color:var(--text-soft); opacity:.75; }
+.fc2-card.fc2-collapsible.open .rdc-hint { display:none; }
+
+/* ── โดนัทภาพประกอบขนาดใหญ่ (แบบตามภาพต้นแบบ) ── */
+.bdf-donut-col { width:100%; max-width:290px; margin:0 auto 6px; }
+.bdf-donut-col.donut-sm { max-width:225px; }
+.bdf-figure { position:relative; width:100%; max-width:380px; margin:0 auto; }
+/* แท็บอนุบัญญัติ: ไอคอนเล็กลง ตัวเลข/ตัวอักษรเด่นขึ้น */
+#anubType-donut .bdf-callout-num  { font-size:24px; }
+#anubType-donut .bdf-callout-name { font-size:14.5px; font-weight:700; }
+#anubType-donut .bdf-bottom-num   { font-size:27px; }
+#anubType-donut .bdf-bottom-name  { font-size:15px; font-weight:700; }
+.bdf-figure svg { width:100%; height:auto; display:block; overflow:visible; }
+.bdf-leader { stroke:var(--text-soft); stroke-width:1.4; opacity:.5; fill:none; }
+.bdf-callout-name { font-size:12.5px; font-weight:600; fill:var(--brown-dark); font-family:'Sarabun',sans-serif; text-anchor:middle; }
+.bdf-callout-num { font-size:19px; font-weight:700; font-family:'IBM Plex Mono',monospace; text-anchor:middle; }
+.bdf-bottom-name { font-size:13px; font-weight:600; fill:var(--brown-dark); font-family:'Sarabun',sans-serif; text-anchor:middle; }
+.bdf-bottom-num { font-size:22px; font-weight:700; fill:var(--brown-dark); font-family:'IBM Plex Mono',monospace; text-anchor:middle; }
+.bdf-unit-tag rect { fill:var(--brown-main); }
+.bdf-unit-tag text { fill:#fff; font-size:10.5px; font-family:'IBM Plex Mono',monospace; text-anchor:middle; }
+.bdf-center-label { font-size:12.5px; fill:var(--brown-main); font-family:'Sarabun',sans-serif; text-anchor:middle; font-weight:500; }
+.bdf-center-box rect { fill:var(--amber); }
+.bdf-center-box text { fill:#fff; font-size:26px; font-weight:700; font-family:'IBM Plex Mono',monospace; text-anchor:middle; }
+.bdf-ring-seg { transition:opacity .2s ease, filter .2s ease; cursor:pointer; }
+.bdf-ring-seg.dim { opacity:.28; }
+.bdf-ring-seg.hi { filter:drop-shadow(0 0 3px rgba(44,26,14,.4)); }
+.bdf-callout { cursor:pointer; transition:opacity .2s ease; }
+.bdf-callout.dim { opacity:.35; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+  <!-- สัตว์มีกระดูกสันหลัง: กะโหลกไดโนเสาร์ -->
+  <g id="ic-skull">
+    <path d="M4,26 C3,14 14,4 30,4 C42,4 50,8 57,15 L54,19 L57,23 L52,25 C51,30 46,34 39,36 L37,45 L33,36 L29,45 L25,36 L21,45 L17,36 C8,33 4,30 4,26 Z" fill="currentColor"/>
+    <circle cx="21" cy="19" r="3.4" fill="#fff"/>
+  </g>
+  <!-- สัตว์ไม่มีกระดูกสันหลัง: ซี่โครง/เปลือกแบบวงแหวน ในตราวงกลม -->
+  <g id="ic-ribcage">
+    <circle cx="30" cy="30" r="27" fill="currentColor"/>
+    <path d="M12,38 Q30,12 48,38" stroke="#fff" stroke-width="3" fill="none"/>
+    <path d="M17,42 Q30,22 43,42" stroke="#fff" stroke-width="3" fill="none"/>
+    <path d="M22,46 Q30,32 38,46" stroke="#fff" stroke-width="3" fill="none"/>
+  </g>
+  <!-- พืช: กิ่งเฟิร์น -->
+  <g id="ic-fern">
+    <path d="M30,54 L30,8" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <circle cx="30" cy="7" r="4" fill="currentColor"/>
+    <path d="M30,44 Q18,40 14,30" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <path d="M30,44 Q42,40 46,30" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <path d="M30,30 Q20,26 17,17" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <path d="M30,30 Q40,26 43,17" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none"/>
+  </g>
+  <!-- จุลชีพ: จุลินทรีย์หนามแหลม -->
+  <g id="ic-microbe">
+    <circle cx="30" cy="30" r="10" fill="currentColor"/>
+    <g stroke="currentColor" stroke-width="3" stroke-linecap="round">
+      <line x1="30" y1="16" x2="30" y2="4"/>
+      <line x1="30" y1="44" x2="30" y2="56"/>
+      <line x1="16" y1="30" x2="4" y2="30"/>
+      <line x1="44" y1="30" x2="56" y2="30"/>
+      <line x1="20" y1="20" x2="11" y2="11"/>
+      <line x1="40" y1="20" x2="49" y2="11"/>
+      <line x1="20" y1="40" x2="11" y2="49"/>
+      <line x1="40" y1="40" x2="49" y2="49"/>
+    </g>
+  </g>
+  <!-- ร่องรอย: ลูกศรแสดงการเคลื่อนไหว -->
+  <g id="ic-trace">
+    <path d="M6,48 Q16,20 44,14 L40,6 L58,16 L42,28 L44,20 Q22,26 14,50 Z" fill="currentColor"/>
+  </g>
+  <!-- ร่องรอยซากดึกดำบรรพ์: รอยเท้าสามนิ้ว -->
+  <g id="ic-track">
+    <ellipse cx="30" cy="41" rx="11" ry="14" fill="currentColor"/>
+    <ellipse cx="15" cy="21" rx="6" ry="12" fill="currentColor" transform="rotate(-25 15 21)"/>
+    <ellipse cx="30" cy="12" rx="6" ry="13" fill="currentColor"/>
+    <ellipse cx="45" cy="21" rx="6" ry="12" fill="currentColor" transform="rotate(25 45 21)"/>
+  </g>
+  <!-- ไอคอนสำหรับแท็บอนุบัญญัติ -->
+  <g id="ic-doc">
+    <rect x="10" y="4" width="40" height="52" rx="4" fill="currentColor"/>
+    <line x1="18" y1="18" x2="42" y2="18" stroke="#fff" stroke-width="3"/>
+    <line x1="18" y1="28" x2="42" y2="28" stroke="#fff" stroke-width="3"/>
+    <line x1="18" y1="38" x2="34" y2="38" stroke="#fff" stroke-width="3"/>
+  </g>
+  <g id="ic-gavel">
+    <rect x="8" y="34" width="30" height="10" rx="2" transform="rotate(-30 8 34)" fill="currentColor"/>
+    <rect x="30" y="18" width="12" height="16" rx="2" transform="rotate(-30 30 18)" fill="currentColor"/>
+    <rect x="16" y="48" width="34" height="6" rx="2" fill="currentColor"/>
+  </g>
+  <g id="ic-building">
+    <polygon points="30,4 54,20 6,20" fill="currentColor"/>
+    <rect x="8" y="22" width="44" height="30" fill="currentColor"/>
+    <rect x="14" y="28" width="6" height="24" fill="#F6F0E4"/>
+    <rect x="27" y="28" width="6" height="24" fill="#F6F0E4"/>
+    <rect x="40" y="28" width="6" height="24" fill="#F6F0E4"/>
+    <rect x="6" y="52" width="48" height="4" fill="currentColor"/>
+  </g>
+  <g id="ic-book">
+    <path d="M30,12 C24,7 14,6 8,8 L8,46 C14,44 24,45 30,50 C36,45 46,44 52,46 L52,8 C46,6 36,7 30,12 Z" fill="currentColor"/>
+    <line x1="30" y1="12" x2="30" y2="50" stroke="#F6F0E4" stroke-width="2"/>
+  </g>
+  <g id="ic-shield">
+    <path d="M30,4 L52,12 C52,32 44,48 30,56 C16,48 8,32 8,12 Z" fill="currentColor"/>
+    <path d="M20,28 L27,36 L41,20" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</defs>
+</svg>
+<div class="page-wrap">
+
+  <div class="head-row">
+    <div>
+      <div class="section-label">ภาพรวม</div>
+      <div class="section-title">สถานการณ์การคุ้มครองและบริหารจัดการแหล่งซากดึกดำบรรพ์และซากดึกดำบรรพ์</div>
+    </div>
+    <span class="head-updated">อัพเดตล่าสุด 8 ก.ค. 69</span>
+  </div>
+
+  <div class="dash-shell">
+    <div class="dash-tabs">
+      <div class="dash-tab active" data-t="a" style="--tab-accent:#C9A227">อนุบัญญัติ<span class="tab-sub">83 ฉบับ</span></div>
+      <div class="dash-tab" data-t="b" style="--tab-accent:#3E8E5A">ซากดึกดำบรรพ์ขึ้นทะเบียน<span class="tab-sub">20,128 รายการ</span></div>
+      <div class="dash-tab" data-t="c" style="--tab-accent:#8B3FA0">แหล่งซากดึกดำบรรพ์<span class="tab-sub">674 แหล่ง</span></div>
+    </div>
+
+    <div class="dash-body">
+
+      <!-- ===== TAB A: อนุบัญญัติ ===== -->
+      <div class="dash-panel active" id="tab-a">
+        <div class="stat-row">
+          <div class="dash-stat" style="--ds-color:var(--amber);--ds-accent:var(--amber)"><div class="ds-num">83</div><div class="ds-label">ฉบับทั้งหมด</div></div>
+          <div class="dash-stat" style="--ds-color:#84A56E;--ds-accent:#84A56E"><div class="ds-num">74</div><div class="ds-label">ใช้บังคับ</div></div>
+          <div class="dash-stat" style="--ds-color:var(--brown-mid);--ds-accent:var(--brown-mid)"><div class="ds-num">9</div><div class="ds-label">ยกเลิกบังคับใช้</div></div>
+        </div>
+
+        <div class="a-layout">
+          <div class="a-donut-wrap bdf-donut-col donut-sm">
+            <div class="bdf-figure" id="anubType-donut">
+              <svg viewBox="60 40 260 300">
+                <circle cx="190" cy="210" r="73" fill="#fff"/>
+                <g transform="rotate(-131.2 190 210)">
+                  <circle class="bdf-ring-seg donut-seg" data-key="rabeab"      cx="190" cy="210" r="92" fill="none" stroke="#84A56E" stroke-width="38" stroke-dasharray="69.66 578.05" stroke-dashoffset="0"/>
+                  <circle class="bdf-ring-seg donut-seg" data-key="kotkrasuang" cx="190" cy="210" r="92" fill="none" stroke="#A14E62" stroke-width="38" stroke-dasharray="48.75 578.05" stroke-dashoffset="-69.66"/>
+                  <circle class="bdf-ring-seg donut-seg" data-key="prb"         cx="190" cy="210" r="92" fill="none" stroke="#5B3DA8" stroke-width="38" stroke-dasharray="6.97 578.05"  stroke-dashoffset="-118.41"/>
+                  <circle class="bdf-ring-seg donut-seg" data-key="kobangkub"   cx="190" cy="210" r="92" fill="none" stroke="#2C6FAE" stroke-width="38" stroke-dasharray="6.97 578.05"  stroke-dashoffset="-125.38"/>
+                  <circle class="bdf-ring-seg donut-seg" data-key="prakat"      cx="190" cy="210" r="92" fill="none" stroke="#C47D2E" stroke-width="38" stroke-dasharray="271.68 578.05" stroke-dashoffset="-132.35"/>
+                  <circle class="bdf-ring-seg donut-seg" data-key="kamsang"     cx="190" cy="210" r="92" fill="none" stroke="#9C3A28" stroke-width="38" stroke-dasharray="174.14 578.05" stroke-dashoffset="-404.03"/>
+                </g>
+
+                <g class="bdf-unit-tag">
+                  <rect x="214" y="50" width="86" height="24" rx="12"/>
+                  <text x="257" y="66">หน่วย : ฉบับ</text>
+                </g>
+
+                <text class="bdf-center-label" x="190" y="182">จำนวน</text>
+                <text class="bdf-center-label" x="190" y="198">อนุบัญญัติ</text>
+                <text class="bdf-center-label" x="190" y="214" id="anubType-centerLbl">ทั้งหมด</text>
+                <g class="bdf-center-box">
+                  <rect x="145" y="222" width="90" height="36" rx="18"/>
+                  <text x="190" y="247" id="anubType-centerNum">83</text>
+                </g>
+              </svg>
+            </div>
+          </div>
+
+          <div class="a-right">
+            <div>
+              <div class="mini-h"><span class="dot" style="background:var(--amber)"></span>แบ่งตามประเภท <span style="font-weight:400;color:var(--text-soft);font-size:9.5px">(กดเพื่อดูในวงกลม)</span></div>
+              <div class="pill-row" id="anubType-pills">
+                <div class="pill linkable" data-key="prakat" style="--ds-accent:#C47D2E"><svg class="pill-icon" viewBox="0 0 60 60"><use href="#ic-doc"/></svg><span class="pnum" style="--ds-accent:#C47D2E">39</span><span class="pname">ประกาศ</span></div>
+                <div class="pill linkable" data-key="kamsang" style="--ds-accent:#9C3A28"><svg class="pill-icon" viewBox="0 0 60 60"><use href="#ic-gavel"/></svg><span class="pnum" style="--ds-accent:#9C3A28">25</span><span class="pname">คำสั่ง</span></div>
+                <div class="pill linkable" data-key="rabeab" style="--ds-accent:#84A56E"><svg class="pill-icon" viewBox="0 0 60 60"><use href="#ic-shield"/></svg><span class="pnum" style="--ds-accent:#84A56E">10</span><span class="pname">ระเบียบ</span></div>
+                <div class="pill linkable" data-key="kotkrasuang" style="--ds-accent:#A14E62"><svg class="pill-icon" viewBox="0 0 60 60"><use href="#ic-building"/></svg><span class="pnum" style="--ds-accent:#A14E62">7</span><span class="pname">กฎกระทรวง</span></div>
+                <div class="pill linkable" data-key="prb" style="--ds-accent:#5B3DA8"><svg class="pill-icon" viewBox="0 0 60 60"><use href="#ic-book"/></svg><span class="pnum" style="--ds-accent:#5B3DA8">1</span><span class="pname">พระราชบัญญัติ</span></div>
+                <div class="pill linkable" data-key="kobangkub" style="--ds-accent:#2C6FAE"><svg class="pill-icon" viewBox="0 0 60 60"><use href="#ic-doc"/></svg><span class="pnum" style="--ds-accent:#2C6FAE">1</span><span class="pname">ข้อบังคับ</span></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="mini-h"><span class="dot" style="background:#888"></span>ยกเลิกบังคับใช้แยกตามหน่วยงาน</div>
+              <div class="pill-row">
+                <div class="pill unclear"><span class="pnum" style="--ds-accent:#888">5</span><span class="pname">ประกาศ — กองทุนฯ</span></div>
+                <div class="pill unclear"><span class="pnum" style="--ds-accent:#999">2</span><span class="pname">คำสั่ง — คุ้มครองฯ</span></div>
+                <div class="pill unclear"><span class="pnum" style="--ds-accent:#aaa">1</span><span class="pname">ประกาศ — กรมฯ</span></div>
+                <div class="pill unclear"><span class="pnum" style="--ds-accent:#bbb">1</span><span class="pname">คำสั่ง — ติดตามฯ</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-footnote">อัปเดตล่าสุด 8 ก.ค. 2569</div>
+      </div>
+
+
+      <!-- ===== TAB B: ซากดึกดำบรรพ์ที่ขึ้นทะเบียน ===== -->
+      <div class="dash-panel" id="tab-b">
+        <div class="a-layout">
+          <div class="a-donut-wrap bdf-donut-col" style="width:260px">
+            <div class="bdf-figure" id="fossilTax-donut" style="max-width:190px;margin:0 auto;">
+              <svg viewBox="60 40 260 300">
+                <circle cx="190" cy="210" r="73" fill="#fff"/>
+                <g transform="rotate(-98.53 190 210)">
+                  <circle class="bdf-ring-seg donut-seg" data-key="vert"   cx="190" cy="210" r="92" fill="none" stroke="#C47D2E" stroke-width="38" stroke-dasharray="315.22 578.05" stroke-dashoffset="0"/>
+                  <circle class="bdf-ring-seg donut-seg" data-key="invert" cx="190" cy="210" r="92" fill="none" stroke="#9C3A28" stroke-width="38" stroke-dasharray="235.55 578.05" stroke-dashoffset="-315.22"/>
+                  <circle class="bdf-ring-seg donut-seg" data-key="plant"   cx="190" cy="210" r="92" fill="none" stroke="#84A56E" stroke-width="38" stroke-dasharray="12.44 578.05" stroke-dashoffset="-550.77"/>
+                  <circle class="bdf-ring-seg donut-seg" data-key="microbe" cx="190" cy="210" r="92" fill="none" stroke="#A14E62" stroke-width="38" stroke-dasharray="10.54 578.05" stroke-dashoffset="-563.21"/>
+                  <circle class="bdf-ring-seg donut-seg" data-key="trace"   cx="190" cy="210" r="92" fill="none" stroke="#5B3DA8" stroke-width="38" stroke-dasharray="4.42 578.05"  stroke-dashoffset="-573.75"/>
+                </g>
+
+                <g class="bdf-unit-tag">
+                  <rect x="206" y="50" width="94" height="24" rx="12" fill="#8B3FA0"/>
+                  <text x="253" y="66">หน่วย : รายการ</text>
+                </g>
+
+                <text class="bdf-center-label" x="190" y="190">ซากดึกดำบรรพ์</text>
+                <text class="bdf-center-label" x="190" y="206" id="fossilTax-centerLbl">ที่ตรวจสอบแล้ว</text>
+                <g class="bdf-center-box">
+                  <rect x="130" y="222" width="120" height="36" rx="18" fill="#8B3FA0"/>
+                  <text x="190" y="247" id="fossilTax-centerNum" style="font-size:21px">20,128</text>
+                </g>
+              </svg>
+            </div>
+
+            <div class="mini-h">แบ่งตามกลุ่มสิ่งมีชีวิต <span style="font-weight:400;color:var(--text-soft);font-size:9.5px">(กดเพื่อดูในวงกลม)</span></div>
+            <div class="icard-grid" id="fossilTax-pills">
+              <div class="icard linkable" data-key="vert" style="--ic-accent:#C47D2E"><svg class="ic-glyph" viewBox="0 0 60 60"><use href="#ic-skull"/></svg><div><div class="ic-num">10,972</div><div class="ic-name">มีกระดูกสันหลัง</div></div></div>
+              <div class="icard linkable" data-key="invert" style="--ic-accent:#9C3A28"><svg class="ic-glyph" viewBox="0 0 60 60"><use href="#ic-ribcage"/></svg><div><div class="ic-num">8,202</div><div class="ic-name">ไม่มีกระดูกสันหลัง</div></div></div>
+              <div class="icard linkable" data-key="plant" style="--ic-accent:#84A56E"><svg class="ic-glyph" viewBox="0 0 60 60"><use href="#ic-fern"/></svg><div><div class="ic-num">433</div><div class="ic-name">พืช</div></div></div>
+              <div class="icard linkable" data-key="microbe" style="--ic-accent:#A14E62"><svg class="ic-glyph" viewBox="0 0 60 60"><use href="#ic-microbe"/></svg><div><div class="ic-num">367</div><div class="ic-name">จุลชีพ</div></div></div>
+              <div class="icard linkable" data-key="trace" style="--ic-accent:#5B3DA8"><svg class="ic-glyph" viewBox="0 0 60 60"><use href="#ic-track"/></svg><div><div class="ic-num">154</div><div class="ic-name">ร่องรอย</div></div></div>
+            </div>
+
+            <div class="fc2-card fc2-collapsible" style="margin-top:auto">
+              <div class="fc2-head" style="background:#3E6B96">ซากดึกดำบรรพ์ชนิดใหม่ของโลกและของไทย</div>
+              <div class="fc2-body" style="--fc-accent:#3E6B96">
+                <div class="rdc-num">731 ชนิด</div>
+                <div class="rdc-hint">กดเพื่อดูรายละเอียด</div>
+                <div class="rdc-rings">
+                  <div class="rdc-ring-cell">
+                    <div class="rdc-ring" style="background:conic-gradient(#9C3A28 0deg 209.3deg,#EDE3CF 209.3deg 360deg)"><div class="rdc-ring-num">425</div></div>
+                    <div class="rdc-ring-lbl">ไม่มีกระดูกสันหลัง</div>
+                  </div>
+                  <div class="rdc-ring-cell">
+                    <div class="rdc-ring" style="background:conic-gradient(#C47D2E 0deg 79.29deg,#EDE3CF 79.29deg 360deg)"><div class="rdc-ring-num">161</div></div>
+                    <div class="rdc-ring-lbl">มีกระดูกสันหลัง</div>
+                  </div>
+                  <div class="rdc-ring-cell">
+                    <div class="rdc-ring" style="background:conic-gradient(#84A56E 0deg 35.95deg,#EDE3CF 35.95deg 360deg)"><div class="rdc-ring-num">73</div></div>
+                    <div class="rdc-ring-lbl">พืช</div>
+                  </div>
+                  <div class="rdc-ring-cell">
+                    <div class="rdc-ring" style="background:conic-gradient(#A14E62 0deg 34.97deg,#EDE3CF 34.97deg 360deg)"><div class="rdc-ring-num">71</div></div>
+                    <div class="rdc-ring-lbl">จุลชีพ</div>
+                  </div>
+                  <div class="rdc-ring-cell">
+                    <div class="rdc-ring" style="background:conic-gradient(#5B3DA8 0deg .49deg,#EDE3CF .49deg 360deg)"><div class="rdc-ring-num">1</div></div>
+                    <div class="rdc-ring-lbl">ร่องรอย</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="a-right">
+            <div>
+              <div class="mini-h" style="margin-top:16px"><span class="dot" style="background:#C47D2E"></span>สถานการณ์การบริหารจัดการทางกฎหมาย</div>
+              <div class="fc-grid fc-grid-row">
+                <div class="fc2-card fc2-collapsible">
+                  <div class="fc2-head" style="background:#2F5D55">ซากดึกดำบรรพ์เตรียมประกาศขึ้นทะเบียน ตาม ม.26</div>
+                  <div class="fc2-body" style="--fc-accent:#2F5D55">
+                    <div class="rdc-num">269</div>
+                    <div class="rdc-hint">กดเพื่อดูรายละเอียด</div>
+                    <div class="rdc-rings">
+                      <div class="rdc-ring-cell">
+                        <div class="rdc-ring" style="background:conic-gradient(#C47D2E 0deg 231.52deg,#EDE3CF 231.52deg 360deg)"><div class="rdc-ring-num">173</div></div>
+                        <div class="rdc-ring-lbl">มีกระดูกสันหลัง</div>
+                      </div>
+                      <div class="rdc-ring-cell">
+                        <div class="rdc-ring" style="background:conic-gradient(#9C3A28 0deg 117.77deg,#EDE3CF 117.77deg 360deg)"><div class="rdc-ring-num">88</div></div>
+                        <div class="rdc-ring-lbl">ไม่มีกระดูกสันหลัง</div>
+                      </div>
+                      <div class="rdc-ring-cell">
+                        <div class="rdc-ring" style="background:conic-gradient(#84A56E 0deg 10.71deg,#EDE3CF 10.71deg 360deg)"><div class="rdc-ring-num">8</div></div>
+                        <div class="rdc-ring-lbl">พืช</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="fc2-card fc2-collapsible">
+                  <div class="fc2-head" style="background:#2F5D55">ซากดึกดำบรรพ์ที่ขึ้นทะเบียน ตาม ม.26</div>
+                  <div class="fc2-body" style="--fc-accent:#2F5D55">
+                    <div class="rdc-num">505</div>
+                    <div class="rdc-hint">กดเพื่อดูรายละเอียด</div>
+                    <div class="rdc-rings">
+                      <div class="rdc-ring-cell">
+                        <div class="rdc-ring" style="background:conic-gradient(#C47D2E 0deg 342.89deg,#EDE3CF 342.89deg 360deg)"><div class="rdc-ring-num">481</div></div>
+                        <div class="rdc-ring-lbl">มีกระดูกสันหลัง</div>
+                      </div>
+                      <div class="rdc-ring-cell">
+                        <div class="rdc-ring" style="background:conic-gradient(#9C3A28 0deg 17.11deg,#EDE3CF 17.11deg 360deg)"><div class="rdc-ring-num">24</div></div>
+                        <div class="rdc-ring-lbl">ไม่มีกระดูกสันหลัง</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="fc2-card fc2-collapsible">
+                  <div class="fc2-head" style="background:#7A3B54">ซากดึกดำบรรพ์เตรียมประกาศขึ้นทะเบียนเป็นสมบัติของชาติ ตาม ม.26 วรรคสอง</div>
+                  <div class="fc2-body" style="--fc-accent:#7A3B54">
+                    <div class="rdc-num">204</div>
+                    <div class="rdc-hint">กดเพื่อดูรายละเอียด</div>
+                    <div class="rdc-rings">
+                      <div class="rdc-ring-cell">
+                        <div class="rdc-ring" style="background:conic-gradient(#9C3A28 0deg 185.29deg,#EDE3CF 185.29deg 360deg)"><div class="rdc-ring-num">105</div></div>
+                        <div class="rdc-ring-lbl">ไม่มีกระดูกสันหลัง</div>
+                      </div>
+                      <div class="rdc-ring-cell">
+                        <div class="rdc-ring" style="background:conic-gradient(#C47D2E 0deg 160.59deg,#EDE3CF 160.59deg 360deg)"><div class="rdc-ring-num">91</div></div>
+                        <div class="rdc-ring-lbl">มีกระดูกสันหลัง</div>
+                      </div>
+                      <div class="rdc-ring-cell">
+                        <div class="rdc-ring" style="background:conic-gradient(#84A56E 0deg 14.12deg,#EDE3CF 14.12deg 360deg)"><div class="rdc-ring-num">8</div></div>
+                        <div class="rdc-ring-lbl">พืช</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="fc2-card fc2-collapsible">
+                  <div class="fc2-head" style="background:#7A3B54">ซากดึกดำบรรพ์ขึ้นทะเบียนเป็นสมบัติของชาติ ตาม ม.26 วรรคสอง</div>
+                  <div class="fc2-body" style="--fc-accent:#7A3B54">
+                    <div class="rdc-num">189</div>
+                    <div class="rdc-hint">กดเพื่อดูรายละเอียด</div>
+                    <div class="rdc-rings">
+                      <div class="rdc-ring-cell">
+                        <div class="rdc-ring" style="background:conic-gradient(#C47D2E 0deg 360deg)"><div class="rdc-ring-num">189</div></div>
+                        <div class="rdc-ring-lbl">มีกระดูกสันหลัง</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-footnote">ที่มา: ฐานข้อมูลแหล่งและซากดึกดำบรรพ์ กรมทรัพยากรธรณี ณ วันที่ 31 มี.ค. 2567</div>
+      </div>
+
+      <!-- ===== TAB C: แหล่งซากดึกดำบรรพ์ ===== -->
+      <div class="dash-panel" id="tab-c">
+        <div class="a-layout">
+          <div class="a-donut-wrap bdf-donut-col" style="width:260px">
+            <div class="bdf-figure" id="fossilType-donut" style="max-width:190px;margin:0 auto;">
+              <svg viewBox="60 40 260 300">
+                <circle cx="190" cy="210" r="73" fill="#fff"/>
+                <g transform="rotate(-114.97 190 210)">
+                  <circle class="bdf-ring-seg donut-seg" data-key="microbe" cx="190" cy="210" r="92" fill="none" stroke="#A14E62" stroke-width="38" stroke-dasharray="68.63 578.05" stroke-dashoffset="0"/>
+                  <circle class="bdf-ring-seg donut-seg" data-key="plant"   cx="190" cy="210" r="92" fill="none" stroke="#84A56E" stroke-width="38" stroke-dasharray="23.16 578.05" stroke-dashoffset="-68.63"/>
+                  <circle class="bdf-ring-seg donut-seg" data-key="trace"   cx="190" cy="210" r="92" fill="none" stroke="#5B3DA8" stroke-width="38" stroke-dasharray="14.59 578.05" stroke-dashoffset="-91.79"/>
+                  <circle class="bdf-ring-seg donut-seg" data-key="invert" cx="190" cy="210" r="92" fill="none" stroke="#9C3A28" stroke-width="38" stroke-dasharray="374.87 578.05" stroke-dashoffset="-106.38"/>
+                  <circle class="bdf-ring-seg donut-seg" data-key="vert"   cx="190" cy="210" r="92" fill="none" stroke="#C47D2E" stroke-width="38" stroke-dasharray="96.95 578.05" stroke-dashoffset="-481.25"/>
+                </g>
+
+                <g class="bdf-unit-tag">
+                  <rect x="214" y="50" width="86" height="24" rx="12" fill="#8B3FA0"/>
+                  <text x="257" y="66">หน่วย : แหล่ง</text>
+                </g>
+
+                <text class="bdf-center-label" x="190" y="182">บัญชี</text>
+                <text class="bdf-center-label" x="190" y="198">แหล่งซากดึกดำบรรพ์</text>
+                <text class="bdf-center-label" x="190" y="214" id="fossilType-centerLbl"></text>
+                <g class="bdf-center-box">
+                  <rect x="145" y="222" width="90" height="36" rx="18" fill="#8B3FA0"/>
+                  <text x="190" y="247" id="fossilType-centerNum">674</text>
+                </g>
+              </svg>
+            </div>
+
+            <div class="mini-h">แบ่งตามกลุ่มสิ่งมีชีวิต <span style="font-weight:400;color:var(--text-soft);font-size:9.5px">(กดเพื่อดูในวงกลม)</span></div>
+            <div class="icard-grid" id="fossilType-pills">
+              <div class="icard linkable" data-key="invert" style="--ic-accent:#9C3A28"><svg class="ic-glyph" viewBox="0 0 60 60"><use href="#ic-ribcage"/></svg><div><div class="ic-num">437</div><div class="ic-name">ไม่มีกระดูกสันหลัง</div></div></div>
+              <div class="icard linkable" data-key="vert" style="--ic-accent:#C47D2E"><svg class="ic-glyph" viewBox="0 0 60 60"><use href="#ic-skull"/></svg><div><div class="ic-num">113</div><div class="ic-name">มีกระดูกสันหลัง</div></div></div>
+              <div class="icard linkable" data-key="microbe" style="--ic-accent:#A14E62"><svg class="ic-glyph" viewBox="0 0 60 60"><use href="#ic-microbe"/></svg><div><div class="ic-num">80</div><div class="ic-name">อื่น ๆ</div></div></div>
+              <div class="icard linkable" data-key="plant" style="--ic-accent:#84A56E"><svg class="ic-glyph" viewBox="0 0 60 60"><use href="#ic-fern"/></svg><div><div class="ic-num">27</div><div class="ic-name">พืช</div></div></div>
+              <div class="icard linkable" data-key="trace" style="--ic-accent:#5B3DA8"><svg class="ic-glyph" viewBox="0 0 60 60"><use href="#ic-track"/></svg><div><div class="ic-num">17</div><div class="ic-name">ร่องรอยซากดึกดำบรรพ์</div></div></div>
+            </div>
+
+            <div class="fc2-card fc2-collapsible" style="margin-top:auto">
+              <div class="fc2-head" style="background:#C4622E">แหล่งที่พบได้ทั่วไป</div>
+              <div class="fc2-body" style="--fc-accent:#C4622E">
+                <div class="rdc-num">513</div>
+                <div class="rdc-hint">กดเพื่อดูรายละเอียด</div>
+                <div class="rdc-rings">
+                  <div class="rdc-ring-cell">
+                    <div class="rdc-ring" style="background:conic-gradient(#9C3A28 0deg 238.6deg,#EDE3CF 238.6deg 360deg)"><div class="rdc-ring-num">340</div></div>
+                    <div class="rdc-ring-lbl">ไม่มีกระดูกสันหลัง</div>
+                  </div>
+                  <div class="rdc-ring-cell">
+                    <div class="rdc-ring" style="background:conic-gradient(#C47D2E 0deg 55.44deg,#EDE3CF 55.44deg 360deg)"><div class="rdc-ring-num">79</div></div>
+                    <div class="rdc-ring-lbl">มีกระดูกสันหลัง</div>
+                  </div>
+                  <div class="rdc-ring-cell">
+                    <div class="rdc-ring" style="background:conic-gradient(#A14E62 0deg 45.61deg,#EDE3CF 45.61deg 360deg)"><div class="rdc-ring-num">65</div></div>
+                    <div class="rdc-ring-lbl">อื่น</div>
+                  </div>
+                  <div class="rdc-ring-cell">
+                    <div class="rdc-ring" style="background:conic-gradient(#84A56E 0deg 15.44deg,#EDE3CF 15.44deg 360deg)"><div class="rdc-ring-num">22</div></div>
+                    <div class="rdc-ring-lbl">พืช</div>
+                  </div>
+                  <div class="rdc-ring-cell">
+                    <div class="rdc-ring" style="background:conic-gradient(#5B3DA8 0deg 4.91deg,#EDE3CF 4.91deg 360deg)"><div class="rdc-ring-num">7</div></div>
+                    <div class="rdc-ring-lbl">ร่องรอย</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="a-right">
+            <div>
+              <div class="mini-h" style="margin-top:16px"><span class="dot" style="background:#8B3FA0"></span>สถานการณ์การบริหารจัดการทางกฎหมาย</div>
+              <div class="fc-grid fc-grid-row">
+                <div class="fc2-card fc2-collapsible">
+                  <div class="fc2-head" style="background:#8B3FA0">แหล่งซากดึกดำบรรพ์ที่เตรียมการขึ้นทะเบียนตาม ม.14</div>
+                  <div class="fc2-body" style="--fc-accent:#8B3FA0">
+                    <div class="rdc-num">31</div>
+                    <div class="rdc-hint">กดเพื่อดูรายละเอียด</div>
+                    <div class="rdc-rings">
+                      <div class="rdc-ring-cell">
+                        <div class="rdc-ring" style="background:conic-gradient(#9C3A28 0deg 220.65deg,#EDE3CF 220.65deg 360deg)"><div class="rdc-ring-num">19</div></div>
+                        <div class="rdc-ring-lbl">ไม่มีกระดูกสันหลัง</div>
+                      </div>
+                      <div class="rdc-ring-cell">
+                        <div class="rdc-ring" style="background:conic-gradient(#C47D2E 0deg 81.29deg,#EDE3CF 81.29deg 360deg)"><div class="rdc-ring-num">7</div></div>
+                        <div class="rdc-ring-lbl">มีกระดูกสันหลัง</div>
+                      </div>
+                      <div class="rdc-ring-cell">
+                        <div class="rdc-ring" style="background:conic-gradient(#A14E62 0deg 46.45deg,#EDE3CF 46.45deg 360deg)"><div class="rdc-ring-num">4</div></div>
+                        <div class="rdc-ring-lbl">อื่น</div>
+                      </div>
+                      <div class="rdc-ring-cell">
+                        <div class="rdc-ring" style="background:conic-gradient(#84A56E 0deg 11.61deg,#EDE3CF 11.61deg 360deg)"><div class="rdc-ring-num">1</div></div>
+                        <div class="rdc-ring-lbl">พืช</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="fc2-card fc2-collapsible">
+                  <div class="fc2-head" style="background:#8B3FA0">แหล่งซากดึกดำบรรพ์ที่ขึ้นทะเบียน ตาม ม.14</div>
+                  <div class="fc2-body" style="--fc-accent:#8B3FA0">
+                    <div class="rdc-num">26</div>
+                    <div class="rdc-hint">กดเพื่อดูรายละเอียด</div>
+                    <div class="rdc-rings">
+                      <div class="rdc-ring-cell">
+                        <div class="rdc-ring" style="background:conic-gradient(#C47D2E 0deg 110.77deg,#EDE3CF 110.77deg 360deg)"><div class="rdc-ring-num">8</div></div>
+                        <div class="rdc-ring-lbl">มีกระดูกสันหลัง</div>
+                      </div>
+                      <div class="rdc-ring-cell">
+                        <div class="rdc-ring" style="background:conic-gradient(#9C3A28 0deg 110.77deg,#EDE3CF 110.77deg 360deg)"><div class="rdc-ring-num">8</div></div>
+                        <div class="rdc-ring-lbl">ไม่มีกระดูกสันหลัง</div>
+                      </div>
+                      <div class="rdc-ring-cell">
+                        <div class="rdc-ring" style="background:conic-gradient(#5B3DA8 0deg 96.92deg,#EDE3CF 96.92deg 360deg)"><div class="rdc-ring-num">7</div></div>
+                        <div class="rdc-ring-lbl">ร่องรอย</div>
+                      </div>
+                      <div class="rdc-ring-cell">
+                        <div class="rdc-ring" style="background:conic-gradient(#84A56E 0deg 41.54deg,#EDE3CF 41.54deg 360deg)"><div class="rdc-ring-num">3</div></div>
+                        <div class="rdc-ring-lbl">พืช</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="fc2-card fc2-collapsible">
+                  <div class="fc2-head" style="background:#3F8A6D">แหล่งซากดึกดำบรรพ์ที่เตรียมประกาศเป็นเขตสำรวจ และศึกษาวิจัย ตาม ม.12</div>
+                  <div class="fc2-body" style="--fc-accent:#3F8A6D">
+                    <div class="rdc-num">103</div>
+                    <div class="rdc-hint">กดเพื่อดูรายละเอียด</div>
+                    <div class="rdc-rings">
+                      <div class="rdc-ring-cell">
+                        <div class="rdc-ring" style="background:conic-gradient(#9C3A28 0deg 244.66deg,#EDE3CF 244.66deg 360deg)"><div class="rdc-ring-num">70</div></div>
+                        <div class="rdc-ring-lbl">ไม่มีกระดูกสันหลัง</div>
+                      </div>
+                      <div class="rdc-ring-cell">
+                        <div class="rdc-ring" style="background:conic-gradient(#C47D2E 0deg 62.91deg,#EDE3CF 62.91deg 360deg)"><div class="rdc-ring-num">18</div></div>
+                        <div class="rdc-ring-lbl">มีกระดูกสันหลัง</div>
+                      </div>
+                      <div class="rdc-ring-cell">
+                        <div class="rdc-ring" style="background:conic-gradient(#A14E62 0deg 38.45deg,#EDE3CF 38.45deg 360deg)"><div class="rdc-ring-num">11</div></div>
+                        <div class="rdc-ring-lbl">อื่น</div>
+                      </div>
+                      <div class="rdc-ring-cell">
+                        <div class="rdc-ring" style="background:conic-gradient(#5B3DA8 0deg 10.49deg,#EDE3CF 10.49deg 360deg)"><div class="rdc-ring-num">3</div></div>
+                        <div class="rdc-ring-lbl">ร่องรอย</div>
+                      </div>
+                      <div class="rdc-ring-cell">
+                        <div class="rdc-ring" style="background:conic-gradient(#84A56E 0deg 3.5deg,#EDE3CF 3.5deg 360deg)"><div class="rdc-ring-num">1</div></div>
+                        <div class="rdc-ring-lbl">พืช</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="fc2-card fc2-collapsible">
+                  <div class="fc2-head" style="background:#3F8A6D">แหล่งซากดึกดำบรรพ์ที่ประกาศเป็นเขตสำรวจ และศึกษาวิจัย ตาม ม.12</div>
+                  <div class="fc2-body" style="--fc-accent:#3F8A6D">
+                    <div class="rdc-num">1</div>
+                    <div class="rdc-hint">กดเพื่อดูรายละเอียด</div>
+                    <div class="rdc-rings">
+                      <div class="rdc-ring-cell">
+                        <div class="rdc-ring" style="background:conic-gradient(#C47D2E 0deg 360deg)"><div class="rdc-ring-num">1</div></div>
+                        <div class="rdc-ring-lbl">มีกระดูกสันหลัง</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-footnote">รวม 674 แหล่งทั่วประเทศ (ทุกสถานะ) · ที่มา: สรุปสถานะการบริหารจัดการของแหล่งซากดึกดำบรรพ์ตามบัญชีแหล่งซากดึกดำบรรพ์เพื่อการบริหารจัดการตามกฎหมาย ฉบับที่ 4 พ.ศ. 2568</div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+document.querySelectorAll('.dash-tab').forEach(function(tab){
+  tab.addEventListener('click', function(){
+    document.querySelectorAll('.dash-tab').forEach(function(t){t.classList.remove('active');});
+    document.querySelectorAll('.dash-panel').forEach(function(p){p.classList.remove('active');});
+    tab.classList.add('active');
+    document.getElementById('tab-'+tab.dataset.t).classList.add('active');
+  });
+});
+
+/* กาง/พับรายละเอียดแยกประเภทในการ์ด — เดสก์ท็อปใช้เมาส์ชี้ได้ทันที, มือถือ/ไอแพดแตะเพื่อกาง/พับ */
+document.querySelectorAll('.fc2-card').forEach(function(card){
+  card.addEventListener('mouseenter', function(){ card.classList.add('open'); });
+  card.addEventListener('mouseleave', function(){ card.classList.remove('open'); });
+  card.addEventListener('click', function(e){
+    // บนอุปกรณ์ทัช mouseenter จะไม่ยิง จึงต้องสลับสถานะเองตอนแตะ
+    if (matchMedia('(hover: none)').matches) {
+      var wasOpen = card.classList.contains('open');
+      document.querySelectorAll('.fc2-card.open').forEach(function(c){ c.classList.remove('open'); });
+      if (!wasOpen) card.classList.add('open');
+    }
+  });
+});
+
+/* เชื่อมโยงป้าย "แบ่งตามประเภท" กับวงแหวนโดนัทของแท็บอนุบัญญัติ */
+(function(){
+  var pillsWrap = document.getElementById('anubType-pills');
+  var donutWrap = document.getElementById('anubType-donut');
+  if (!pillsWrap || !donutWrap) return;
+
+  var pills = pillsWrap.querySelectorAll('.pill.linkable');
+  var segs  = donutWrap.querySelectorAll('.donut-seg');
+  var centerNum = document.getElementById('anubType-centerNum');
+  var centerLbl = document.getElementById('anubType-centerLbl');
+  var activeKey = null;
+
+  var nameMap = {
+    prakat:'ประกาศ', kamsang:'คำสั่ง', rabeab:'ระเบียบ',
+    kotkrasuang:'กฎกระทรวง', prb:'พระราชบัญญัติ', kobangkub:'ข้อบังคับ'
+  };
+  var numMap = { prakat:39, kamsang:25, rabeab:10, kotkrasuang:7, prb:1, kobangkub:1 };
+
+  function setActive(key){
+    activeKey = (activeKey === key) ? null : key;
+
+    pills.forEach(function(p){
+      var isMatch = p.dataset.key === activeKey;
+      p.classList.toggle('active', isMatch);
+      p.classList.toggle('dim', !!activeKey && !isMatch);
+    });
+    segs.forEach(function(s){
+      var isMatch = s.dataset.key === activeKey;
+      s.classList.toggle('hi', isMatch);
+      s.classList.toggle('dim', !!activeKey && !isMatch);
+    });
+
+    if (activeKey) {
+      centerNum.textContent = numMap[activeKey];
+      centerLbl.textContent = nameMap[activeKey];
+    } else {
+      centerNum.textContent = '83';
+      centerLbl.textContent = 'ฉบับทั้งหมด';
+    }
+  }
+
+  pills.forEach(function(p){
+    p.addEventListener('click', function(){ setActive(p.dataset.key); });
+  });
+  segs.forEach(function(s){
+    s.addEventListener('click', function(){ setActive(s.dataset.key); });
+  });
+})();
+
+/* เชื่อมโยง legend "แบ่งตามกลุ่มสิ่งมีชีวิต" กับวงแหวนโดนัทของแท็บซากดึกดำบรรพ์ที่ขึ้นทะเบียน */
+(function(){
+  var legendWrap = document.getElementById('fossilTax-pills');
+  var donutWrap  = document.getElementById('fossilTax-donut');
+  if (!legendWrap || !donutWrap) return;
+
+  var items = legendWrap.querySelectorAll('.icard.linkable');
+  var segs  = donutWrap.querySelectorAll('.donut-seg');
+  var centerNum = document.getElementById('fossilTax-centerNum');
+  var centerLbl = document.getElementById('fossilTax-centerLbl');
+  var activeKey = null;
+
+  var nameMap = { vert:'สัตว์มีกระดูกสันหลัง', invert:'สัตว์ไม่มีกระดูกสันหลัง', plant:'พืช', microbe:'จุลชีพ', trace:'ร่องรอย' };
+  var numMap  = { vert:'10,972', invert:'8,202', plant:'433', microbe:'367', trace:'154' };
+
+  function setActive(key){
+    activeKey = (activeKey === key) ? null : key;
+
+    items.forEach(function(it){
+      var isMatch = it.dataset.key === activeKey;
+      it.classList.toggle('active', isMatch);
+      it.classList.toggle('dim', !!activeKey && !isMatch);
+    });
+    segs.forEach(function(s){
+      var isMatch = s.dataset.key === activeKey;
+      s.classList.toggle('hi', isMatch);
+      s.classList.toggle('dim', !!activeKey && !isMatch);
+    });
+
+    if (activeKey) {
+      centerNum.textContent = numMap[activeKey];
+      centerLbl.textContent = nameMap[activeKey];
+    } else {
+      centerNum.textContent = '20,128';
+      centerLbl.textContent = 'ตรวจสอบแล้ว';
+    }
+  }
+
+  items.forEach(function(it){
+    it.addEventListener('click', function(){ setActive(it.dataset.key); });
+  });
+  segs.forEach(function(s){
+    s.addEventListener('click', function(){ setActive(s.dataset.key); });
+  });
+})();
+
+/* เชื่อมโยงไอคอน "แบ่งตามกลุ่มสิ่งมีชีวิต" กับวงแหวนโดนัทของแท็บแหล่งซากดึกดำบรรพ์ */
+(function(){
+  var legendWrap = document.getElementById('fossilType-pills');
+  var donutWrap  = document.getElementById('fossilType-donut');
+  if (!legendWrap || !donutWrap) return;
+
+  var items = legendWrap.querySelectorAll('.icard.linkable');
+  var segs  = donutWrap.querySelectorAll('.donut-seg');
+  var centerNum = document.getElementById('fossilType-centerNum');
+  var centerLbl = document.getElementById('fossilType-centerLbl');
+  var activeKey = null;
+
+  var nameMap = { vert:'สัตว์มีกระดูกสันหลัง', invert:'สัตว์ไม่มีกระดูกสันหลัง', plant:'พืช', microbe:'อื่น ๆ', trace:'ร่องรอยซากดึกดำบรรพ์' };
+  var numMap  = { vert:113, invert:437, plant:27, microbe:80, trace:17 };
+
+  function setActive(key){
+    activeKey = (activeKey === key) ? null : key;
+
+    items.forEach(function(it){
+      var isMatch = it.dataset.key === activeKey;
+      it.classList.toggle('active', isMatch);
+      it.classList.toggle('dim', !!activeKey && !isMatch);
+    });
+    segs.forEach(function(s){
+      var isMatch = s.dataset.key === activeKey;
+      s.classList.toggle('hi', isMatch);
+      s.classList.toggle('dim', !!activeKey && !isMatch);
+    });
+
+    if (activeKey) {
+      centerNum.textContent = numMap[activeKey];
+      centerLbl.textContent = nameMap[activeKey];
+    } else {
+      centerNum.textContent = '674';
+      centerLbl.textContent = '';
+    }
+  }
+
+  items.forEach(function(it){
+    it.addEventListener('click', function(){ setActive(it.dataset.key); });
+  });
+  segs.forEach(function(s){
+    s.addEventListener('click', function(){ setActive(s.dataset.key); });
+  });
+})();
+</script>
+</body>
+</html>
